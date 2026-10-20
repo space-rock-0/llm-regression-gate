@@ -1,0 +1,18 @@
+services:
+  mrds:
+    build: .
+    image: mrds:latest
+    environment:
+      PROVIDER: ${PROVIDER:-mock}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+      WARN_THRESHOLD: ${WARN_THRESHOLD:-0.03}
+      CRITICAL_THRESHOLD: ${CRITICAL_THRESHOLD:-0.08}
+    volumes:
+      - ./data:/app/data
+    # Single command: full eval + reporting pipeline.
+    command: >
+      sh -c "python runner.py --provider ${PROVIDER:-mock} --no-judge --concurrency 8 &&
+             python scripts/ci_summary.py --report-path /app/data/ci_report.html"

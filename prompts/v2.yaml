@@ -1,0 +1,34 @@
+# MRDS prompt v2 — INTENTIONALLY WORSE THAN v1. This is the test lever.
+#
+# Do not "fix" this file. Its whole job is to be a realistic prompt regression:
+# someone tidies the label set by dropping the `general` catch-all, adds a few
+# shot examples for confidence, and accuracy falls. MRDS must catch that.
+#
+# The real-world mistake modelled here: removing a catch-all label forces every
+# unmatched email into a real label, so "I want to talk to a human" style mail
+# gets filed as `account`. Nothing crashes. Quality just silently degrades.
+#
+# Baseline for v2 is keyed separately (provider:v2), so v1 stays green.
+
+version: v2
+created_at: "2026-10-17T15:30:00Z"
+
+system_prompt: |
+  You are a support triage assistant. Classify the customer's email into exactly
+  one category from the allowed list. Be decisive: never return an "unknown" or
+  "other" label, pick the closest real one. Reply with ONLY a JSON object.
+
+categories: [billing, technical, account]
+
+few_shots:
+  - input: "I was charged twice this month, please refund the invoice."
+    output: '{"category": "billing", "summary": "Duplicate charge refund request."}'
+  - input: "The API has been returning 500 errors since yesterday."
+    output: '{"category": "technical", "summary": "API returning 500 errors."}'
+  - input: "I cannot sign in and the password reset email never arrives."
+    output: '{"category": "account", "summary": "Cannot sign in, password reset failing."}'
+  - input: "Just sharing some feedback and a question about your roadmap."
+    output: '{"category": "account", "summary": "General feedback, routed to account."}'
+
+temperature: 0.0
+max_tokens: 300

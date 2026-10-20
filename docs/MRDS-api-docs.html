@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MRDS API Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary: #5929d0;
+    --primary-light: #E8E5FF;
+    --primary-border: #9B8EDE;
+    --pink: #CF008B;
+    --pink-light: #FFD6F4;
+    --navy-dark: #0E2E89;
+    --navy-bot: #001427;
+    --cyan: #22D3EE;
+    --cyan-light: #CFFAFE;
+    --success: #16A34A;
+    --success-light: #DCFCE7;
+    --warning: #E4902E;
+    --warning-light: #FEF3C7;
+    --error: #DC2626;
+    --error-light: #FEE2E2;
+    --neutral-0: #0F172A;
+    --neutral-1: #1E293B;
+    --neutral-2: #334155;
+    --neutral-3: #475569;
+    --neutral-4: #64748B;
+    --neutral-5: #94A3B8;
+    --neutral-6: #CBD5E1;
+    --neutral-7: #E2E8F0;
+    --neutral-8: #F1F5F9;
+    --neutral-9: #FFFFFF;
+    --gradient-banner: linear-gradient(90deg, #A855F7 0%, #6B8EF0 50%, #01CAB8 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.10);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,.12);
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-pill: 999px;
+    --font: 'Poppins', sans-serif;
+    --font-mono: 'Courier New', monospace;
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--neutral-1);
+    background: var(--neutral-9);
+}
+
+/* Nav */
+.nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--neutral-7);
+    padding: 14px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.nav-logo { font-weight: 800; font-size: 20px; color: var(--neutral-0); text-decoration: none; }
+.nav-logo span { color: var(--pink); }
+.nav-links { display: flex; gap: 24px; list-style: none; align-items: center; }
+.nav-links a { text-decoration: none; color: var(--neutral-3); font-weight: 500; font-size: 14px; transition: color 0.2s; }
+.nav-links a:hover { color: var(--primary); }
+.nav-cta { background: var(--primary); color: #fff; padding: 8px 20px; border-radius: var(--radius-pill); font-size: 14px; font-weight: 600; text-decoration: none; }
+
+/* Hero */
+.hero {
+    background: var(--navy-bot);
+    color: var(--neutral-9);
+    padding: 80px 40px;
+    text-align: center;
+}
+.hero h1 { font-size: 48px; font-weight: 800; margin-bottom: 12px; }
+.hero h1 span { color: var(--cyan); }
+.hero p { font-size: 18px; color: var(--neutral-5); max-width: 600px; margin: 0 auto; }
+
+/* Container */
+.container { max-width: 1100px; margin: 0 auto; padding: 60px 40px; }
+
+/* Module section */
+.module-section { margin-bottom: 64px; }
+.module-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--neutral-7);
+}
+.module-icon {
+    width: 48px; height: 48px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800;
+    flex-shrink: 0;
+}
+.module-icon.purple { background: var(--primary-light); color: var(--primary); }
+.module-icon.cyan { background: var(--cyan-light); color: #0E7490; }
+.module-icon.pink { background: var(--pink-light); color: var(--pink); }
+.module-icon.green { background: var(--success-light); color: var(--success); }
+.module-title { font-size: 28px; font-weight: 700; color: var(--neutral-0); }
+.module-desc { font-size: 14px; color: var(--neutral-4); margin-top: 4px; }
+.module-file { font-family: var(--font-mono); font-size: 13px; color: var(--primary); }
+
+/* API item */
+.api-item {
+    background: var(--neutral-9);
+    border: 1px solid var(--neutral-7);
+    border-radius: var(--radius-md);
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s;
+}
+.api-item:hover { box-shadow: var(--shadow-md); }
+.api-signature {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    background: var(--neutral-0);
+    color: var(--neutral-9);
+    padding: 16px 20px;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+.api-signature .kw { color: var(--cyan); }
+.api-signature .type { color: var(--pink); }
+.api-signature .param { color: var(--neutral-5); }
+.api-name { font-weight: 700; color: var(--primary); }
+
+/* Doc sections */
+.doc-section { margin-top: 16px; }
+.doc-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--neutral-4);
+    margin-bottom: 8px;
+}
+.doc-text { font-size: 14px; color: var(--neutral-2); line-height: 1.7; }
+.doc-text p { margin-bottom: 8px; }
+
+/* Args table */
+.args-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.args-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--neutral-8);
+    color: var(--neutral-3);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.args-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--neutral-7);
+    color: var(--neutral-2);
+    vertical-align: top;
+}
+.args-table tr:last-child td { border-bottom: none; }
+.args-table .type { color: var(--primary); font-family: var(--font-mono); font-size: 12px; }
+.args-table .default { color: var(--neutral-4); font-family: var(--font-mono); font-size: 12px; }
+
+/* Raises */
+.raises-list { list-style: none; margin-top: 8px; }
+.raises-list li {
+    font-size: 13px;
+    color: var(--neutral-2);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--neutral-8);
+}
+.raises-list li:last-child { border-bottom: none; }
+.raises-list .exc-type { color: var(--error); font-weight: 600; font-family: var(--font-mono); font-size: 12px; }
+
+/* Returns */
+.returns-box {
+    background: var(--success-light);
+    border-left: 4px solid var(--success);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--neutral-2);
+    margin-top: 8px;
+}
+
+/* Returns */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: gap 0.2s;
+}
+.back-link:hover { gap: 12px; }
+
+/* Footer */
+.footer {
+    background: var(--neutral-0);
+    color: var(--neutral-5);
+    padding: 40px;
+    text-align: center;
+    font-size: 13px;
+}
+
+/* Code block */
+.code-block {
+    background: var(--neutral-0);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--neutral-9);
+    overflow-x: auto;
+    margin-top: 16px;
+}
+.code-block .comment { color: var(--neutral-5); }
+.code-block .keyword { color: var(--cyan); }
+.code-block .string { color: var(--success); }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hero h1 { font-size: 32px; }
+    .container { padding: 40px 20px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="index.html" class="nav-logo">MR<span>D</span>S Docs</a>
+    <ul class="nav-links">
+        <li><a href="#contract">contract</a></li>
+        <li><a href="#evaluator">evaluator</a></li>
+        <li><a href="#runner">runner</a></li>
+        <li><a href="#drift">drift</a></li>
+        <li><a href="#classifier">classifier</a></li>
+        <li><a href="#providers">providers</a></li>
+        <li><a href="#storage">storage</a></li>
+        <li><a href="#reporter">reporter</a></li>
+    </ul>
+    <a href="index.html" class="nav-cta">Back to Blog</a>
+</nav>
+
+<header class="hero">
+    <h1>MRDS <span>API Documentation</span></h1>
+    <p>Google-style docstrings for every public class and function in the MRDS pipeline.</p>
+</header>
+
+<div class="container">
+
+<a href="index.html" class="back-link">&larr; Back to Blog Post</a>
+
+<!-- ===========================================
+     CONTRACT.PY
+     =========================================== -->
+<section class="module-section" id="contract">
+    <div class="module-header">
+        <div class="module-icon purple">C</div>
+        <div>
+            <div class="module-title">contract.py</div>
+            <div class="module-desc">The typed boundary of MRDS</div>
+            <div class="module-file">contract.py</div>
+        </div>
+    </div>
+
+    <!-- EmailInput -->
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">EmailInput</span>(BaseModel)</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>One support email, typed.</p><p>A bare <code>str</code> would be simpler, but metadata then travels as a parallel dict that can drift out of sync with the text. Carrying subject and id inside the model means the pipeline can join predictions back to the dataset row without anyone passing two objects around together.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Fields</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>email_id</td><td><span class="type">str</span></td><td>Dataset row id, for traceability. <span class="default">Default: ""</span></td></tr>
+                <tr><td>subject</td><td><span class="type">str</span></td><td>Email subject line, optional. <span class="default">Default: ""</span></td></tr>
+                <tr><td>body</td><td><span class="type">str</span></td><td>Raw email text from the customer. <span class="default">Required</span></td></tr>
+            </table>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Raises</div>
+            <ul class="raises-list">
+                <li><span class="exc-type">ValueError</span> - body is empty, nothing to classify.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- PromptSpec -->
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">PromptSpec</span>(BaseModel)</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>The contents of ONE prompts/&lt;version&gt;.yaml file.</p><p>Renamed from PromptConfig (decision.md D22) so the name PromptConfig can mean the contract. This class is only about describing a FILE; the pipeline consumes PromptConfig, which wraps one of these.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Fields</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>version</td><td><span class="type">str</span></td><td>Immutable version ID. Stored with every run. <span class="default">Required</span></td></tr>
+                <tr><td>created_at</td><td><span class="type">str</span></td><td>Explicit UTC timestamp written into the file. <span class="default">Required</span></td></tr>
+                <tr><td>system_prompt</td><td><span class="type">str</span></td><td>Rules and output contract, sent in the system turn. <span class="default">Required</span></td></tr>
+                <tr><td>categories</td><td><span class="type">tuple[Category, ...]</span></td><td>Closed set of allowed labels. <span class="default">Default: CATEGORIES</span></td></tr>
+                <tr><td>few_shots</td><td><span class="type">list[dict]</span></td><td>Worked examples. Sent in the SYSTEM turn. <span class="default">Default: []</span></td></tr>
+                <tr><td>temperature</td><td><span class="type">float</span></td><td><span class="default">Default: 0.0</span></td></tr>
+                <tr><td>max_tokens</td><td><span class="type">int</span></td><td><span class="default">Default: 300</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- PromptConfig -->
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">PromptConfig</span>(BaseModel)</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>THE CONTRACT the eval pipeline consumes.</p><p>A prompt spec (what the YAML file says) plus everything the pipeline must enforce: which labels this version may emit, how the prompt is assembled, and that the model answer is valid before anyone sees it.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Methods</div>
+            <table class="args-table">
+                <tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+                <tr><td><span class="api-name">build_system_prompt</span>()</td><td><span class="type">str</span></td><td>Compose the SYSTEM turn: file rules + allowed labels + few-shot examples.</td></tr>
+                <tr><td><span class="api-name">build_user_prompt</span>(email)</td><td><span class="type">str</span></td><td>Compose the single user message: instructions + the email itself.</td></tr>
+                <tr><td><span class="api-name">parse_classification</span>(raw, provider)</td><td><span class="type">EmailClassification</span></td><td>Turn raw model text into a validated EmailClassification.</td></tr>
+                <tr><td><span class="api-name">from_spec</span>(spec)</td><td><span class="type">PromptConfig</span></td><td>Wrap a YAML file contents into a contract.</td></tr>
+            </table>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Raises</div>
+            <ul class="raises-list">
+                <li><span class="exc-type">ContractViolationError</span> - unparseable text, wrong JSON shape, a label outside MRDS closed set, or a label this version may not use.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- EmailClassification -->
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">EmailClassification</span>(BaseModel)</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Typed output of the feature under test.</p><p><code>category</code> is a Literal, so <code>EmailClassification(category="refund_request")</code> raises at construction instead of flowing into the metrics. Construction is the validation.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Fields</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>category</td><td><span class="type">Category</span></td><td>One of: billing, technical, account, general. <span class="default">Required</span></td></tr>
+                <tr><td>summary</td><td><span class="type">str</span></td><td>One sentence describing the customer issue. <span class="default">Required</span></td></tr>
+                <tr><td>provider</td><td><span class="type">str</span></td><td><span class="default">Default: "unknown"</span></td></tr>
+                <tr><td>prompt_version</td><td><span class="type">str</span></td><td><span class="default">Default: "unknown"</span></td></tr>
+                <tr><td>allowed_categories</td><td><span class="type">tuple[Category, ...]</span></td><td>Per-version label set. Excluded from serialization. <span class="default">Default: ()</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ContractViolationError -->
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">ContractViolationError</span>(ValueError, RuntimeError)</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>The model, or a caller, produced something the contract forbids.</p><p>Inherits from both ValueError and RuntimeError so older call sites that caught either still work. It is raised at the boundary, once, instead of being checked inline in five different places.</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     EVALUATOR.PY
+     =========================================== -->
+<section class="module-section" id="evaluator">
+    <div class="module-header">
+        <div class="module-icon cyan">E</div>
+        <div>
+            <div class="module-title">evaluator.py</div>
+            <div class="module-desc">Score the classifier, compare to baseline, emit a verdict</div>
+            <div class="module-file">evaluator.py</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">assemble_run</span>(cases, provider, prompt_version, dataset_version, duration_ms=0.0) -> RunResult</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Score executed cases into a RunResult. THE single place exact match, latency percentiles, token totals and judge stats are computed. The sync loop and the async runner both end here, so the two paths cannot drift apart metric by metric.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Args</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>cases</td><td><span class="type">list[CaseResult]</span></td><td>Executed test cases with metrics.</td></tr>
+                <tr><td>provider</td><td><span class="type">str</span></td><td>Provider name (e.g. "ollama", "mock").</td></tr>
+                <tr><td>prompt_version</td><td><span class="type">str</span></td><td>Prompt file version ID.</td></tr>
+                <tr><td>dataset_version</td><td><span class="type">str</span></td><td>Dataset version for baseline keying.</td></tr>
+                <tr><td>duration_ms</td><td><span class="type">float</span></td><td><span class="default">Default: 0.0</span></td></tr>
+            </table>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>RunResult</strong> with accuracy, per-category breakdown, confusion matrix, latency stats, token usage, judge stats, and predictions.</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">evaluate</span>(prompt=None, client=None, samples=None, samples_path=None, prompt_version=None, classify=None, dataset_version=None, judge=False) -> RunResult</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Classify every sample, compare to its human label, compute metrics.</p><p>Every classification goes through the SAME public function <code>classify_email</code> that production would call. Evaluating a different code path than the one you ship would make the whole system worthless.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Args</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>prompt</td><td><span class="type">PromptConfig | PromptSpec | None</span></td><td>Pass a PromptConfig / PromptSpec to override the YAML files.</td></tr>
+                <tr><td>client</td><td><span class="type">ChatClient | None</span></td><td>LLM client. Omit to resolve one from env vars (mock default).</td></tr>
+                <tr><td>samples</td><td><span class="type">list[dict] | None</span></td><td>Inline sample rows. Omit to load from samples_path.</td></tr>
+                <tr><td>samples_path</td><td><span class="type">str | Path | None</span></td><td>Path to a samples JSON file.</td></tr>
+                <tr><td>prompt_version</td><td><span class="type">str | None</span></td><td>Which prompt FILE to load, e.g. "v2".</td></tr>
+                <tr><td>classify</td><td><span class="type">Callable | None</span></td><td>Alternative implementation. Defaults to classify_email.</td></tr>
+                <tr><td>dataset_version</td><td><span class="type">str | None</span></td><td>Version of the labelled set being scored.</td></tr>
+                <tr><td>judge</td><td><span class="type">bool</span></td><td>Also score summary relevance (1-5) per case. <span class="default">Default: False</span></td></tr>
+            </table>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>RunResult</strong> with full metrics and predictions.</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">compare_to_baseline</span>(run, store=None, baseline_key=None, threshold=None, warn_threshold=0.03, critical_threshold=0.08) -> Verdict</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Decide: PASS, WARN, CRITICAL_REGRESSION, or BASELINE_CREATED, and say exactly which cases moved.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Args</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>run</td><td><span class="type">RunResult</span></td><td>The current evaluation run.</td></tr>
+                <tr><td>store</td><td><span class="type">Store | None</span></td><td>Storage backend. Omit to use default.</td></tr>
+                <tr><td>baseline_key</td><td><span class="type">str | None</span></td><td>Which baseline to compare against. Omit for auto-derived key.</td></tr>
+                <tr><td>threshold</td><td><span class="type">float | None</span></td><td>LEGACY single cut-off. Replaces warn/critical pair.</td></tr>
+                <tr><td>warn_threshold</td><td><span class="type">float</span></td><td><span class="default">Default: 0.03</span></td></tr>
+                <tr><td>critical_threshold</td><td><span class="type">float</span></td><td><span class="default">Default: 0.08</span></td></tr>
+            </table>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>Verdict</strong> with status, accuracy delta, per-category delta, regressions list, and improvements list.</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">run_evaluation</span>(prompt=None, client=None, store=None, baseline_key=None, threshold=None, persist=True, prompt_version=None, samples=None, classify=None, dataset_version=None, judge=False) -> tuple[RunResult, Verdict]</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>The whole MRDS loop in one call: score, persist, compare.</p><p>Order matters: persist the run BEFORE comparing, so a crash during compare still leaves the raw predictions on disk to investigate.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>tuple[RunResult, Verdict]</strong> - the scored run and the baseline comparison verdict.</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">load_golden_dataset</span>(path=None, require_verified=True) -> tuple[list[dict], str]</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Load the human-reviewed golden dataset into the sample shape eval expects.</p><p>Enforces provenance rules: <code>provenance.human_verified</code> must be true, every record must carry a valid category and non-empty ideal summary, ids must be unique.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Args</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>path</td><td><span class="type">str | Path | None</span></td><td><span class="default">Default: GOLDEN_PATH</span></td></tr>
+                <tr><td>require_verified</td><td><span class="type">bool</span></td><td>Refuse unverified datasets. <span class="default">Default: True</span></td></tr>
+            </table>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>tuple[list[dict], str]</strong> - sample rows and dataset version string.</div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Raises</div>
+            <ul class="raises-list">
+                <li><span class="exc-type">FileNotFoundError</span> - no dataset at path.</li>
+                <li><span class="exc-type">ValueError</span> - unverified provenance, bad category, duplicate id, missing summary.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">classify_run_status</span>(delta, warn_threshold=0.03, critical_threshold=0.08) -> str</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Pass-rate delta to PASS | WARN | CRITICAL_REGRESSION. Pure function: no store, no run, no side effects.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>str</strong> - "PASS", "WARN", or "CRITICAL_REGRESSION"</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     RUNNER.PY
+     =========================================== -->
+<section class="module-section" id="runner">
+    <div class="module-header">
+        <div class="module-icon pink">R</div>
+        <div>
+            <div class="module-title">runner.py</div>
+            <div class="module-desc">Async batch execution engine</div>
+            <div class="module-file">runner.py</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">async def</span> <span class="api-name">run_batch</span>(rows, config, client, concurrency=4, judge=True, judge_client=None, on_progress=None) -> tuple[list[CaseResult], float]</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Classify (and judge) every row concurrently, bounded by a semaphore.</p><p>Returns (case_results, wall_clock_ms) ready for evaluator.assemble_run. This function MEASURES, it does not score; scoring lives in the evaluator so the sync and async paths cannot drift apart.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Args</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>rows</td><td><span class="type">list[dict]</span></td><td>Sample rows to classify.</td></tr>
+                <tr><td>config</td><td><span class="type">PromptConfig</span></td><td>The contract with prompt assembly rules.</td></tr>
+                <tr><td>client</td><td><span class="type">AsyncChatClient</span></td><td>Async LLM client.</td></tr>
+                <tr><td>concurrency</td><td><span class="type">int</span></td><td>Max in-flight model calls. <span class="default">Default: 4</span></td></tr>
+                <tr><td>judge</td><td><span class="type">bool</span></td><td>Score summary relevance per case. <span class="default">Default: True</span></td></tr>
+                <tr><td>judge_client</td><td><span class="type">AsyncChatClient | None</span></td><td>Grade with a different model. Defaults to same client.</td></tr>
+                <tr><td>on_progress</td><td><span class="type">Callable | None</span></td><td>Optional callback(done, total) as cases finish.</td></tr>
+            </table>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>tuple[list[CaseResult], float]</strong> - case results and wall-clock milliseconds.</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">get_async_client</span>(provider=None, temperature=0.0, timeout=120.0) -> AsyncChatClient</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Build the async client. Same resolution order as providers.get_client (explicit arg > PROVIDER > USE_MOCK > mock).</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Raises</div>
+            <ul class="raises-list">
+                <li><span class="exc-type">ValueError</span> - unknown provider name.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">AsyncHTTPChatClient</span></div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Async LLM over HTTP. No SDK. httpx speaks the same wire format, and seeing the raw response is exactly what token accounting requires.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Methods</div>
+            <table class="args-table">
+                <tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+                <tr><td><span class="api-name">acomplete</span>(system_prompt, user_prompt)</td><td><span class="type">Completion</span></td><td>POST to /chat/completions and return text + usage.</td></tr>
+                <tr><td><span class="api-name">aclose</span>()</td><td><span class="type">None</span></td><td>Close the HTTP connection pool.</td></tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     DRIFT.PY
+     =========================================== -->
+<section class="module-section" id="drift">
+    <div class="module-header">
+        <div class="module-icon green">D</div>
+        <div>
+            <div class="module-title">drift.py</div>
+            <div class="module-desc">Rolling drift detection over historical runs</div>
+            <div class="module-file">drift.py</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">detect_drift</span>(store=None, window=7, threshold=-0.03, baseline_key=None, provider=None, prompt_version=None, min_runs=1, runs=None, accuracies=None) -> DriftResult</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Detect slow degradation via a rolling moving average.</p><p>Alerts when the N-run MA drops beyond the configured delta vs the reference (first run or explicit baseline). This catches the slow slide that a one-off diff would never flag.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Args</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>store</td><td><span class="type">Store | None</span></td><td>Storage backend. Omit for default.</td></tr>
+                <tr><td>window</td><td><span class="type">int</span></td><td>Moving average window size. <span class="default">Default: 7</span></td></tr>
+                <tr><td>threshold</td><td><span class="type">float</span></td><td>Alert delta threshold. <span class="default">Default: -0.03</span></td></tr>
+                <tr><td>baseline_key</td><td><span class="type">str | None</span></td><td>Explicit baseline to compare against.</td></tr>
+                <tr><td>provider</td><td><span class="type">str | None</span></td><td>Filter runs by provider.</td></tr>
+                <tr><td>prompt_version</td><td><span class="type">str | None</span></td><td>Filter runs by prompt version.</td></tr>
+                <tr><td>min_runs</td><td><span class="type">int</span></td><td>Minimum runs before alerting. <span class="default">Default: 1</span></td></tr>
+            </table>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>DriftResult</strong> with moving_average, alert bool, status string, message, and full history lists.</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">compute_moving_average</span>(values, window=7) -> float | None</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Compute the moving average over the last N values.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>float | None</strong> - the moving average, or None if values is empty.</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">rolling_averages</span>(values, window=7) -> list[float]</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Compute rolling moving averages for every prefix of the input list.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>list[float]</strong> - moving average at each position.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     CLASSIFIER.PY
+     =========================================== -->
+<section class="module-section" id="classifier">
+    <div class="module-header">
+        <div class="module-icon purple">F</div>
+        <div>
+            <div class="module-title">classifier.py</div>
+            <div class="module-desc">THE FEATURE UNDER TEST</div>
+            <div class="module-file">classifier.py</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">classify_email</span>(email_body, prompt=None, client=None, prompt_version=None) -> dict</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Classify one support email.</p><p>One function does the whole job. A regression is a change in the OUTPUT of this function. If the behaviour lived in 6 classes with hidden state, a diff in behaviour would be impossible to attribute. One function, no hidden state, pure input to output is what makes the later "compare against baseline" step trustworthy.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Args</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>email_body</td><td><span class="type">str | EmailInput</span></td><td>Raw email text, or an EmailInput carrying subject/id.</td></tr>
+                <tr><td>prompt</td><td><span class="type">PromptConfig | PromptSpec | None</span></td><td>A PromptConfig (contract) or a bare PromptSpec. Omit to load YAML.</td></tr>
+                <tr><td>client</td><td><span class="type">ChatClient | None</span></td><td>LLM client. Omit to resolve one from env vars (mock default).</td></tr>
+                <tr><td>prompt_version</td><td><span class="type">str | None</span></td><td>Which prompt file to load. Omit for resolve_version().</td></tr>
+            </table>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>dict</strong> - {"category": str, "summary": str, "provider": str, "prompt_version": str}</div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Raises</div>
+            <ul class="raises-list">
+                <li><span class="exc-type">ContractViolationError</span> - blank email, unparseable model output, invalid label.</li>
+                <li><span class="exc-type">RuntimeError</span> - provider failed to start or is unreachable.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     PROVIDERS.PY
+     =========================================== -->
+<section class="module-section" id="providers">
+    <div class="module-header">
+        <div class="module-icon cyan">P</div>
+        <div>
+            <div class="module-title">providers.py</div>
+            <div class="module-desc">Every LLM call goes through ONE small interface</div>
+            <div class="module-file">providers.py</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">MockClient</span></div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Fake LLM. Answers with fixed keyword rules. Never calls a network.</p><p>Default provider. Deterministic, offline, free. A regression-detection system needs a ground truth that NEVER moves.</p></div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">OllamaClient</span></div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Local Ollama models. No API key, no cost, no data leaves the machine. Talks the OpenAI wire format via http://localhost:11434/v1.</p></div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">OpenAIClient</span></div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>OpenAI API. Requires OPENAI_API_KEY env var.</p></div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">AnthropicClient</span></div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Anthropic Claude API. Requires ANTHROPIC_API_KEY env var.</p></div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">GeminiClient</span></div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Google Gemini API. Uses stdlib urllib (no extra dependency). Requires GEMINI_API_KEY or GOOGLE_API_KEY env var.</p></div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">get_client</span>(provider=None) -> ChatClient</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Build the LLM client. Resolution order: explicit argument > PROVIDER env > USE_MOCK env > mock (safe default).</p><p>Mock is the fallback because MRDS must run in CI with no keys and no network. A missing key should degrade to a deterministic run, not a crash.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Raises</div>
+            <ul class="raises-list">
+                <li><span class="exc-type">ValueError</span> - unknown provider name.</li>
+                <li><span class="exc-type">RuntimeError</span> - SDK not installed or API key missing.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     STORAGE.PY
+     =========================================== -->
+<section class="module-section" id="storage">
+    <div class="module-header">
+        <div class="module-icon pink">S</div>
+        <div>
+            <div class="module-title">storage.py</div>
+            <div class="module-desc">Persistence for runs, predictions and baselines</div>
+            <div class="module-file">storage.py</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="kw">class</span> <span class="api-name">SQLiteStore</span></div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>One backend: SQLiteStore using stdlib sqlite3. Real queries, real durability.</p><p>Why stdlib sqlite3 and no ORM: an ORM adds a dependency and a layer of mapping code that a beginner then has to learn before understanding the data. For 3 tables, plain SQL is clearer about what actually happens.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Schema</div>
+            <div class="code-block">
+<span class="comment">-- Tables</span>
+runs (run_id, created_at, provider, prompt_ver, dataset_version, n_samples, accuracy, metrics_json)
+predictions (run_id, sample_id, category, expected, correct, summary)
+baseline (key, run_id, created_at, accuracy, metrics_json)
+case_metrics (run_id, sample_id, metrics_json)
+            </div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Methods</div>
+            <table class="args-table">
+                <tr><th>Method</th><th>Description</th></tr>
+                <tr><td><span class="api-name">save_run</span>(run, predictions)</td><td>Persist a run and its predictions.</td></tr>
+                <tr><td><span class="api-name">get_run</span>(run_id)</td><td>Fetch one run by ID.</td></tr>
+                <tr><td><span class="api-name">list_runs</span>()</td><td>List all runs ordered by created_at.</td></tr>
+                <tr><td><span class="api-name">get_predictions</span>(run_id)</td><td>Fetch predictions for a run, including case_metrics.</td></tr>
+                <tr><td><span class="api-name">set_baseline</span>(key, run)</td><td>Pin a run as the baseline for a key.</td></tr>
+                <tr><td><span class="api-name">get_baseline</span>(key)</td><td>Fetch the baseline for a key.</td></tr>
+                <tr><td><span class="api-name">close</span>()</td><td>Close the SQLite connection.</td></tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     REPORTER.PY
+     =========================================== -->
+<section class="module-section" id="reporter">
+    <div class="module-header">
+        <div class="module-icon green">R</div>
+        <div>
+            <div class="module-title">reporter.py</div>
+            <div class="module-desc">Standalone HTML diff report</div>
+            <div class="module-file">reporter.py</div>
+        </div>
+    </div>
+
+    <div class="api-item">
+        <div class="api-signature"><span class="api-name">generate_report</span>(run=None, verdict=None, store=None, output_path=None, baseline_key=None, last_n=10) -> str</div>
+        <div class="doc-section">
+            <div class="doc-section-title">Description</div>
+            <div class="doc-text"><p>Render a standalone HTML report to disk and return its path.</p><p>Polished, dependency-free (stdlib only) report: run metadata, headline scorecard, per-category breakdown, side-by-side regressed cases, and a trend table across the last N runs in SQLite.</p></div>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Args</div>
+            <table class="args-table">
+                <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+                <tr><td>run</td><td><span class="type">RunResult | str | dict | None</span></td><td>The run to report on.</td></tr>
+                <tr><td>verdict</td><td><span class="type">Verdict | dict | None</span></td><td>The verdict to display.</td></tr>
+                <tr><td>store</td><td><span class="type">Store | None</span></td><td>Storage backend for baseline and trend data.</td></tr>
+                <tr><td>output_path</td><td><span class="type">str | Path | None</span></td><td>Where to write the HTML file.</td></tr>
+                <tr><td>baseline_key</td><td><span class="type">str | None</span></td><td>Baseline to compare against.</td></tr>
+                <tr><td>last_n</td><td><span class="type">int</span></td><td>Number of historical runs in trend table. <span class="default">Default: 10</span></td></tr>
+            </table>
+        </div>
+        <div class="doc-section">
+            <div class="doc-section-title">Returns</div>
+            <div class="returns-box"><strong>str</strong> - the file path of the generated HTML report.</div>
+        </div>
+    </div>
+</section>
+
+</div>
+
+<footer class="footer">
+    <p>MRDS API Documentation. Google-style docstrings generated from the source code.</p>
+    <p style="margin-top: 8px;"><a href="index.html" style="color: var(--cyan);">Back to Blog Post</a></p>
+</footer>
+
+</body>
+</html>

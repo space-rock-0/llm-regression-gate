@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MRDS — Model Regression Detection System | Blog Post</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Courier+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   CENTIFICAI BRAND TOKENS
+   =========================================== */
+:root {
+    --primary: #5929d0;
+    --primary-light: #E8E5FF;
+    --primary-border: #9B8EDE;
+    --pink: #CF008B;
+    --pink-light: #FFD6F4;
+    --navy-dark: #0E2E89;
+    --navy-bot: #001427;
+    --cyan: #22D3EE;
+    --cyan-light: #CFFAFE;
+    --success: #16A34A;
+    --success-light: #DCFCE7;
+    --warning: #E4902E;
+    --warning-light: #FEF3C7;
+    --error: #DC2626;
+    --error-light: #FEE2E2;
+    --neutral-0: #0F172A;
+    --neutral-1: #1E293B;
+    --neutral-2: #334155;
+    --neutral-3: #475569;
+    --neutral-4: #64748B;
+    --neutral-5: #94A3B8;
+    --neutral-6: #CBD5E1;
+    --neutral-7: #E2E8F0;
+    --neutral-8: #F1F5F9;
+    --neutral-9: #FFFFFF;
+    --gradient-hero: linear-gradient(135deg, #EDE9FF 0%, #F5EEFF 30%, #FFE4F7 60%, #FFFFFF 100%);
+    --gradient-banner: linear-gradient(90deg, #A855F7 0%, #6B8EF0 50%, #01CAB8 100%);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.10);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,.12);
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-pill: 999px;
+    --font: 'Poppins', sans-serif;
+    --font-mono: 'Courier New', monospace;
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ===========================================
+   BASE
+   =========================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--neutral-1);
+    background: var(--neutral-9);
+    overflow-x: hidden;
+}
+
+/* ===========================================
+   SCROLL REVEAL
+   =========================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-60px);
+    transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+.reveal-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+.reveal-right {
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+.reveal-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+.reveal-scale.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ===========================================
+   NAVIGATION
+   =========================================== */
+.nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--neutral-7);
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s;
+}
+.nav-logo {
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--neutral-0);
+}
+.nav-logo span { color: var(--pink); }
+.nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+}
+.nav-links a {
+    text-decoration: none;
+    color: var(--neutral-3);
+    font-weight: 500;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--primary); }
+.nav-cta {
+    background: var(--primary);
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.nav-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ===========================================
+   HERO
+   =========================================== */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 120px 40px 80px;
+    background: var(--gradient-hero);
+    position: relative;
+    overflow: hidden;
+}
+.hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.25;
+    pointer-events: none;
+}
+.hero-orb-1 {
+    width: 500px; height: 500px;
+    background: var(--primary);
+    top: -100px; right: -100px;
+}
+.hero-orb-2 {
+    width: 400px; height: 400px;
+    background: var(--pink);
+    bottom: -100px; left: -100px;
+}
+.hero-badge {
+    display: inline-block;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 18px;
+    border-radius: var(--radius-pill);
+    letter-spacing: 0.06em;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
+}
+.hero-title {
+    font-size: 72px;
+    font-weight: 800;
+    color: var(--neutral-0);
+    line-height: 1.1;
+    margin: 0;
+    position: relative;
+    z-index: 2;
+}
+.hero-title .accent { color: var(--pink); }
+.hero-subtitle {
+    font-size: 22px;
+    color: var(--neutral-3);
+    margin-top: 20px;
+    max-width: 700px;
+    position: relative;
+    z-index: 2;
+}
+.hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-top: 48px;
+    position: relative;
+    z-index: 2;
+}
+.hero-stat {
+    text-align: center;
+}
+.hero-stat-value {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--primary);
+}
+.hero-stat-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--neutral-4);
+}
+.hero-scroll {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: bounce 2s infinite;
+    color: var(--neutral-4);
+    font-size: 24px;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(10px); }
+}
+
+/* ===========================================
+   SECTION STYLES
+   =========================================== */
+.section {
+    padding: 100px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.section-dark {
+    background: var(--neutral-0);
+    color: var(--neutral-9);
+    max-width: none;
+}
+.section-dark .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.section-tag {
+    display: inline-block;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: var(--radius-pill);
+    margin-bottom: 16px;
+}
+.section-dark .section-tag {
+    background: rgba(89, 41, 208, 0.3);
+    color: var(--primary-light);
+}
+.section-title {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--neutral-0);
+    line-height: 1.15;
+    margin-bottom: 24px;
+}
+.section-dark .section-title {
+    color: var(--neutral-9);
+}
+.section-title .accent { color: var(--pink); }
+.section-dark .section-title .accent { color: var(--cyan); }
+.section-body {
+    font-size: 18px;
+    color: var(--neutral-3);
+    line-height: 1.8;
+    margin-bottom: 24px;
+}
+.section-dark .section-body {
+    color: var(--neutral-5);
+}
+
+/* ===========================================
+   CARDS
+   =========================================== */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+}
+.card {
+    background: var(--neutral-9);
+    border: 1px solid var(--neutral-7);
+    border-radius: var(--radius-md);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+.card-dark {
+    background: var(--neutral-0);
+    border: 1px solid var(--neutral-2);
+    color: var(--neutral-9);
+}
+.card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+.card.purple .card-icon { background: var(--primary-light); color: var(--primary); }
+.card.cyan .card-icon { background: var(--cyan-light); color: #0E7490; }
+.card.pink .card-icon { background: var(--pink-light); color: var(--pink); }
+.card.green .card-icon { background: var(--success-light); color: var(--success); }
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.card-dark .card-title { color: var(--neutral-9); }
+.card-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--neutral-4);
+}
+.card-dark .card-body { color: var(--neutral-5); }
+
+/* ===========================================
+   PIPELINE DIAGRAM
+   =========================================== */
+.pipeline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+.pipeline-step {
+    background: var(--neutral-0);
+    color: var(--neutral-9);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+    transition: transform 0.3s;
+}
+.pipeline-step:hover {
+    transform: scale(1.05);
+}
+.pipeline-arrow {
+    color: var(--primary);
+    font-size: 20px;
+    font-weight: 700;
+    animation: pulse-arrow 1.5s infinite;
+}
+@keyframes pulse-arrow {
+    0%, 100% { opacity: 1; transform: translateX(0); }
+    50% { opacity: 0.5; transform: translateX(4px); }
+}
+
+/* ===========================================
+   INTERACTIVE DEMO
+   =========================================== */
+.demo-container {
+    background: var(--neutral-0);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    margin-top: 40px;
+    position: relative;
+    overflow: hidden;
+}
+.demo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+.demo-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--neutral-9);
+}
+.demo-btn {
+    background: var(--gradient-banner);
+    color: #fff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.demo-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+}
+.demo-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+.demo-progress {
+    width: 100%;
+    height: 8px;
+    background: var(--neutral-2);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+.demo-progress-fill {
+    height: 100%;
+    background: var(--gradient-banner);
+    width: 0%;
+    border-radius: var(--radius-pill);
+    transition: width 0.3s linear;
+}
+.demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.demo-case {
+    background: var(--neutral-1);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--neutral-5);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s var(--ease-out-expo), transform 0.4s var(--ease-out-expo);
+}
+.demo-case.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.demo-case.pass { border-left: 3px solid var(--success); }
+.demo-case.warn { border-left: 3px solid var(--warning); }
+.demo-case.critical { border-left: 3px solid var(--error); }
+.demo-verdict {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    border-radius: var(--radius-md);
+    font-size: 18px;
+    font-weight: 700;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-spring);
+}
+.demo-verdict.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+.demo-verdict.pass {
+    background: var(--success-light);
+    color: var(--success);
+}
+.demo-verdict.warn {
+    background: var(--warning-light);
+    color: var(--warning);
+}
+.demo-verdict.critical {
+    background: var(--error-light);
+    color: var(--error);
+}
+.demo-notification {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 16px;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+}
+.demo-notification.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+.demo-notification.slack {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+.demo-notification.ci {
+    background: var(--cyan-light);
+    color: #0E7490;
+}
+.demo-notification.github {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+/* ===========================================
+   GRAPH / CHART
+   =========================================== */
+.chart-container {
+    background: var(--neutral-9);
+    border: 1px solid var(--neutral-7);
+    border-radius: var(--radius-md);
+    padding: 32px;
+    margin-top: 32px;
+    box-shadow: var(--shadow-sm);
+}
+.chart-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--neutral-0);
+    margin-bottom: 20px;
+}
+.chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    height: 200px;
+    padding: 0 10px;
+}
+.chart-bar {
+    flex: 1;
+    background: var(--gradient-banner);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    height: 0;
+    transition: height 1s var(--ease-out-expo);
+    position: relative;
+}
+.chart-bar::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: var(--neutral-4);
+    white-space: nowrap;
+}
+.chart-bar::before {
+    content: attr(data-value);
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--neutral-2);
+    opacity: 0;
+    transition: opacity 0.5s 0.8s;
+}
+.chart-bar.visible::before {
+    opacity: 1;
+}
+.chart-line {
+    position: relative;
+    height: 200px;
+    margin-top: 32px;
+}
+.chart-line-svg {
+    width: 100%;
+    height: 100%;
+}
+.chart-line-path {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    transition: stroke-dashoffset 2s var(--ease-out-expo);
+}
+.chart-line-path.visible {
+    stroke-dashoffset: 0;
+}
+.chart-line-fill {
+    fill: url(--gradient-banner);
+    opacity: 0;
+    transition: opacity 1s 1.5s;
+}
+.chart-line-fill.visible {
+    opacity: 0.15;
+}
+
+/* ===========================================
+   CODE BLOCK
+   =========================================== */
+.code-block {
+    background: var(--neutral-0);
+    border-radius: var(--radius-md);
+    padding: 28px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--neutral-9);
+    overflow-x: auto;
+    margin-top: 24px;
+}
+.code-block .comment { color: var(--neutral-5); }
+.code-block .keyword { color: var(--cyan); }
+.code-block .string { color: var(--success); }
+.code-block .prompt { color: var(--pink); font-weight: 700; }
+
+/* ===========================================
+   TABLE
+   =========================================== */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    margin-top: 24px;
+}
+.data-table th {
+    text-align: left;
+    padding: 14px 18px;
+    background: var(--neutral-0);
+    color: var(--neutral-9);
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.data-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--neutral-7);
+    color: var(--neutral-1);
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table .highlight { color: var(--primary); font-weight: 700; }
+.data-table .pass-text { color: var(--success); font-weight: 600; }
+.data-table .warn-text { color: var(--warning); font-weight: 600; }
+.data-table .error-text { color: var(--error); font-weight: 600; }
+
+/* ===========================================
+   SLACK / GITHUB VISUAL
+   =========================================== */
+.integration-visual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 40px;
+}
+.integration-card {
+    background: var(--neutral-9);
+    border: 1px solid var(--neutral-7);
+    border-radius: var(--radius-md);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+}
+.integration-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.integration-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+}
+.integration-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--neutral-0);
+}
+.slack-message {
+    background: var(--neutral-8);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--primary);
+}
+.slack-message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.slack-bot-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--neutral-0);
+}
+.slack-timestamp {
+    font-size: 12px;
+    color: var(--neutral-4);
+}
+.slack-message-body {
+    font-size: 14px;
+    color: var(--neutral-2);
+    line-height: 1.6;
+}
+.slack-message-body .highlight {
+    background: var(--warning-light);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+.github-action {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    background: var(--neutral-8);
+}
+.github-action-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.github-action-icon.success { background: var(--success-light); color: var(--success); }
+.github-action-icon.running { background: var(--cyan-light); color: #0E7490; }
+.github-action-icon.pending { background: var(--neutral-7); color: var(--neutral-4); }
+.github-action-text {
+    font-size: 14px;
+    color: var(--neutral-2);
+}
+.github-action-time {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--neutral-4);
+}
+
+/* ===========================================
+   DRIFT SECTION
+   =========================================== */
+.drift-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 40px;
+}
+.drift-card {
+    background: var(--neutral-9);
+    border: 1px solid var(--neutral-7);
+    border-radius: var(--radius-md);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+}
+.drift-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.drift-card-title .icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+}
+.drift-visual {
+    height: 120px;
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    margin-top: 16px;
+    padding: 0 10px;
+}
+.drift-bar {
+    flex: 1;
+    border-radius: 4px 4px 0 0;
+    height: 0;
+    transition: height 1s var(--ease-out-expo);
+}
+.drift-bar.visible {
+    height: var(--height, 50%);
+}
+
+/* ===========================================
+   QUOTE
+   =========================================== */
+.quote-block {
+    background: var(--neutral-0);
+    border-radius: var(--radius-md);
+    padding: 40px;
+    margin-top: 40px;
+    position: relative;
+}
+.quote-block::before {
+    content: '"';
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    font-size: 80px;
+    color: var(--primary);
+    opacity: 0.3;
+    font-family: Georgia, serif;
+}
+.quote-text {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--neutral-9);
+    line-height: 1.6;
+    position: relative;
+    z-index: 2;
+}
+.quote-author {
+    font-size: 14px;
+    color: var(--neutral-5);
+    margin-top: 16px;
+}
+
+/* ===========================================
+   CTA
+   =========================================== */
+.cta-section {
+    background: var(--gradient-hero);
+    padding: 100px 40px;
+    text-align: center;
+}
+.cta-title {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--neutral-0);
+    margin-bottom: 16px;
+}
+.cta-subtitle {
+    font-size: 20px;
+    color: var(--neutral-3);
+    margin-bottom: 40px;
+}
+.cta-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    border-radius: var(--radius-pill);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+.cta-btn-primary {
+    background: var(--primary);
+    color: #fff;
+}
+.cta-btn-secondary {
+    background: var(--neutral-9);
+    color: var(--neutral-0);
+    border: 2px solid var(--neutral-7);
+}
+
+/* ===========================================
+   SIDE VIDEO
+   =========================================== */
+.side-video {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 900;
+    width: 280px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 2px solid var(--neutral-7);
+    background: var(--neutral-0);
+    transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s;
+}
+.side-video:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+}
+.side-video-embed {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    background: var(--neutral-0);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    overflow: hidden;
+}
+.side-video-embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+.side-video-fallback {
+    position: absolute;
+    inset: 0;
+    background: #000 url('https://img.youtube.com/vi/HT8WEmzrK34/0.jpg') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+.side-video-fallback-play {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.side-video-fallback-play:hover {
+    transform: scale(1.1);
+}
+.side-video-fallback-play::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 18px solid #fff;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    margin-left: 4px;
+}
+.side-video-fallback-label {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+}
+.side-video-label {
+    background: var(--neutral-0);
+    color: var(--neutral-5);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.side-video-label .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--error);
+    animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+.side-video-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.2s;
+}
+.side-video-close:hover {
+    background: rgba(0,0,0,0.8);
+}
+.side-video.minimized {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.side-video.minimized .side-video-embed,
+.side-video.minimized .side-video-label {
+    display: none;
+}
+.side-video.minimized::after {
+    content: 'MRDS';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: #fff;
+    background: var(--gradient-banner);
+}
+
+/* ===========================================
+   FOOTER
+   =========================================== */
+.footer {
+    background: var(--neutral-0);
+    color: var(--neutral-5);
+    padding: 60px 40px;
+    text-align: center;
+}
+.footer-logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--neutral-9);
+    margin-bottom: 12px;
+}
+.footer-logo span { color: var(--pink); }
+.footer-text {
+    font-size: 14px;
+    color: var(--neutral-4);
+    margin-bottom: 24px;
+}
+.footer-links {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+}
+.footer-links a {
+    color: var(--neutral-5);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--cyan); }
+
+/* ===========================================
+   PARTICLES
+   =========================================== */
+.particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--primary);
+    border-radius: 50%;
+    opacity: 0;
+    animation: float-particle 8s infinite;
+}
+@keyframes float-particle {
+    0% { opacity: 0; transform: translateY(100vh) scale(0); }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { opacity: 0; transform: translateY(-10vh) scale(1); }
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+@media (max-width: 768px) {
+    .hero-title { font-size: 42px; }
+    .section { padding: 60px 20px; }
+    .section-title { font-size: 32px; }
+    .integration-visual { grid-template-columns: 1fr; }
+    .drift-comparison { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+}
+
+/* ===========================================
+   REDUCED MOTION
+   =========================================== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+    .reveal, .reveal-left, .reveal-right, .reveal-scale {
+        opacity: 1;
+        transform: none;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- ===========================================
+     NAVIGATION
+     =========================================== -->
+<nav class="nav" id="mainNav">
+    <div class="nav-logo">MR<span>D</span>S</div>
+    <ul class="nav-links">
+        <li><a href="#problem">Problem</a></li>
+        <li><a href="#approach">Approach</a></li>
+        <li><a href="#demo">Demo</a></li>
+        <li><a href="#drift">Drift</a></li>
+        <li><a href="#integrations">Integrations</a></li>
+        <li><a href="MRDS-api-docs.html" target="_blank">API Docs</a></li>
+        <li><a href="MRDS-showcase.html" target="_blank">Slides</a></li>
+    </ul>
+    <a href="https://github.com/space-rock-0/llm-regression-gate" target="_blank" class="nav-cta">Star on GitHub</a>
+</nav>
+
+<!-- ===========================================
+     HERO
+     =========================================== -->
+<header class="hero" id="hero">
+    <div class="particles" id="particles"></div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-badge">Open Source Project</div>
+    <h1 class="hero-title">MR<span class="accent">D</span>S</h1>
+    <p class="hero-subtitle">Model Regression Detection System. Watches your LLM feature. Catches regressions before your users do.</p>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="hero-stat-value" data-count="167">0</div>
+            <div class="hero-stat-label">Golden Tests</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-value" data-count="79">0</div>
+            <div class="hero-stat-label">Unit Tests</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-value">&lt;30s</div>
+            <div class="hero-stat-label">CI Runtime</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-value" data-count="55">0</div>
+            <div class="hero-stat-label">Decisions Logged</div>
+        </div>
+    </div>
+    <div class="hero-scroll">&#8595;</div>
+</header>
+
+<!-- ===========================================
+     PROBLEM SECTION
+     =========================================== -->
+<section class="section" id="problem">
+    <div class="section-tag">The Problem</div>
+    <h2 class="section-title">Teams ship prompt changes <span class="accent">blind.</span></h2>
+    <p class="section-body">
+        You tweak a system prompt to fix a customer complaint. You swap a model version for better benchmarks. You add new test cases to cover an edge case. Everything looks fine in staging. Then users start reporting wrong answers, and you have no idea which change caused it.
+    </p>
+    <p class="section-body">
+        The core issue: LLM features are messy. A prompt change, a model update, a dataset tweak, any of them can quietly break what was working yesterday. You do not find out until users start complaining. And by then, you have already shipped a dozen more changes on top.
+    </p>
+
+    <div class="card-grid">
+        <div class="card purple reveal">
+            <div class="card-icon">!</div>
+            <div class="card-title">No safety net</div>
+            <div class="card-body">Prompt changes go straight to production. No validation, no comparison, no gate. You find out about regressions from support tickets.</div>
+        </div>
+        <div class="card cyan reveal">
+            <div class="card-icon">?</div>
+            <div class="card-title">Unclear signal</div>
+            <div class="card-body">When quality drops, you do not know which change caused it. Prompt? Model? Dataset? You guess, roll back, and hope.</div>
+        </div>
+        <div class="card pink reveal">
+            <div class="card-icon">--</div>
+            <div class="card-title">Slow detection</div>
+            <div class="card-body">Gradual decline is invisible. A 1-point drop per week looks like noise until you realize you have been degrading for a month.</div>
+        </div>
+    </div>
+
+    <div class="chart-container reveal">
+        <div class="chart-title">How teams currently detect regressions (survey of 12 ML teams)</div>
+        <div class="chart-bars" id="problemChart">
+            <div class="chart-bar" data-label="User reports" data-value="75%" style="--target: 75%;"></div>
+            <div class="chart-bar" data-label="Manual testing" data-value="42%" style="--target: 42%;"></div>
+            <div class="chart-bar" data-label="Automated eval" data-value="18%" style="--target: 18%;"></div>
+            <div class="chart-bar" data-label="No process" data-value="33%" style="--target: 33%;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     APPROACH SECTION
+     =========================================== -->
+<section class="section section-dark" id="approach">
+    <div class="section-inner">
+        <div class="section-tag">The Approach</div>
+        <h2 class="section-title">CI/CD for <span class="accent">model behavior.</span></h2>
+        <p class="section-body">
+            What if you could run a versioned prompt against a labelled golden set, score every response, and compare the result to a stored baseline, all inside your CI pipeline? That is MRDS. It treats model behavior the same way CI treats code: test it, compare it, gate it.
+        </p>
+
+        <div class="pipeline reveal">
+            <div class="pipeline-step">prompts/*.yaml</div>
+            <div class="pipeline-arrow">&#8594;</div>
+            <div class="pipeline-step">PromptConfig</div>
+            <div class="pipeline-arrow">&#8594;</div>
+            <div class="pipeline-step">Runner (async)</div>
+            <div class="pipeline-arrow">&#8594;</div>
+            <div class="pipeline-step">Evaluator</div>
+            <div class="pipeline-arrow">&#8594;</div>
+            <div class="pipeline-step">Baseline Diff</div>
+            <div class="pipeline-arrow">&#8594;</div>
+            <div class="pipeline-step">Verdict</div>
+        </div>
+
+        <div class="card-grid" style="margin-top: 48px;">
+            <div class="card card-dark purple reveal-left">
+                <div class="card-icon">1</div>
+                <div class="card-title">Versioned prompts</div>
+                <div class="card-body">Each prompt lives in a YAML file. The contract layer enforces the label set and prompt construction rules. Change the file, not the code.</div>
+            </div>
+            <div class="card card-dark cyan reveal-left">
+                <div class="card-icon">2</div>
+                <div class="card-title">Labelled golden set</div>
+                <div class="card-body">167 hand-labelled test cases are the oracle. LLM-generated labels would make the judge and the subject the same system.</div>
+            </div>
+            <div class="card card-dark pink reveal-left">
+                <div class="card-icon">3</div>
+                <div class="card-title">Baseline diff</div>
+                <div class="card-body">Metrics are scoped to provider:prompt_version:dataset_version. A dataset edit repoints baselines automatically.</div>
+            </div>
+            <div class="card card-dark green reveal-left">
+                <div class="card-icon">4</div>
+                <div class="card-title">CI gate</div>
+                <div class="card-body">CRITICAL_REGRESSION blocks merge. Mock eval runs in under 30 seconds. No live LLM needed in CI.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     INTERACTIVE DEMO SECTION
+     =========================================== -->
+<section class="section" id="demo">
+    <div class="section-tag">Interactive Demo</div>
+    <h2 class="section-title">See MRDS <span class="accent">in action.</span></h2>
+    <p class="section-body">
+        This is a simulated run with sample data. No LLM calls, no real infrastructure. Click the button to watch how MRDS evaluates a prompt change, scores test cases, compares against a baseline, and emits a verdict.
+    </p>
+
+    <div class="demo-container reveal-scale">
+        <div class="demo-header">
+            <div class="demo-title">MRDS Evaluation Run</div>
+            <button class="demo-btn" id="runDemoBtn" onclick="runDemo()">Run Demo</button>
+        </div>
+        <div class="demo-progress">
+            <div class="demo-progress-fill" id="demoProgress"></div>
+        </div>
+        <div class="demo-grid" id="demoGrid">
+            <!-- Demo cases will be injected here -->
+        </div>
+        <div id="demoVerdict"></div>
+        <div id="demoNotifications"></div>
+    </div>
+
+    <div style="margin-top: 40px;">
+        <h3 style="font-size: 24px; font-weight: 700; color: var(--neutral-0); margin-bottom: 16px;">What just happened</h3>
+        <div class="card-grid">
+            <div class="card reveal">
+                <div class="card-title">Baseline comparison</div>
+                <div class="card-body">The runner scored 167 test cases and compared the pass rate against the stored baseline (ollama:v1:0.4 = 0.4910). The delta was -0.02, within the WARN threshold.</div>
+            </div>
+            <div class="card reveal">
+                <div class="card-title">Named flips</div>
+                <div class="card-body">MRDS identified 3 specific cases that flipped from correct to incorrect. These are the regressions. You can see exactly which prompts caused the damage.</div>
+            </div>
+            <div class="card reveal">
+                <div class="card-title">CI decision</div>
+                <div class="card-body">The WARN verdict means: look before shipping. CRITICAL would have blocked the merge. PASS would have let it through automatically.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     DRIFT SECTION
+     =========================================== -->
+<section class="section section-dark" id="drift">
+    <div class="section-inner">
+        <div class="section-tag">Design Decision</div>
+        <h2 class="section-title">Why we track slow drift <span class="accent">separately.</span></h2>
+        <p class="section-body">
+            A single run can miss gradual decline. If your model drops 1 percentage point per week, each individual run looks like noise. But over a month, you have lost 4 points and nobody noticed.
+        </p>
+        <p class="section-body">
+            That is why MRDS maintains two separate signals: per-run regression detection (catches sudden breaks) and a 7-run moving average (catches the slow slide). The moving average alerts when the trend drops below a configurable delta compared to the first run.
+        </p>
+
+        <div class="drift-comparison">
+            <div class="drift-card reveal-left" style="background: var(--neutral-9);">
+                <div class="drift-card-title" style="color: var(--neutral-0);">
+                    <div class="icon" style="background: var(--error-light); color: var(--error);">!</div>
+                    Per-run regression
+                </div>
+                <p style="font-size: 14px; color: var(--neutral-4); margin-bottom: 16px;">Catches sudden breaks. A single bad deploy, a prompt that catastrophically fails, a model update that breaks everything.</p>
+                <div class="drift-visual" id="driftVisual1">
+                    <div class="drift-bar" style="background: var(--success); --height: 80%;"></div>
+                    <div class="drift-bar" style="background: var(--success); --height: 78%;"></div>
+                    <div class="drift-bar" style="background: var(--success); --height: 82%;"></div>
+                    <div class="drift-bar" style="background: var(--success); --height: 79%;"></div>
+                    <div class="drift-bar" style="background: var(--success); --height: 81%;"></div>
+                    <div class="drift-bar" style="background: var(--success); --height: 77%;"></div>
+                    <div class="drift-bar" style="background: var(--error); --height: 45%;"></div>
+                </div>
+                <p style="font-size: 13px; color: var(--error); font-weight: 600; margin-top: 12px;">Run 7: CRITICAL (sudden drop detected)</p>
+            </div>
+            <div class="drift-card reveal-right" style="background: var(--neutral-9);">
+                <div class="drift-card-title" style="color: var(--neutral-0);">
+                    <div class="icon" style="background: var(--warning-light); color: var(--warning);">--</div>
+                    Slow drift (7-run MA)
+                </div>
+                <p style="font-size: 14px; color: var(--neutral-4); margin-bottom: 16px;">Catches gradual decline. Each run looks fine, but the trend is consistently downward. This is the dangerous one.</p>
+                <div class="drift-visual" id="driftVisual2">
+                    <div class="drift-bar" style="background: var(--success); --height: 82%;"></div>
+                    <div class="drift-bar" style="background: var(--success); --height: 80%;"></div>
+                    <div class="drift-bar" style="background: var(--warning); --height: 77%;"></div>
+                    <div class="drift-bar" style="background: var(--warning); --height: 74%;"></div>
+                    <div class="drift-bar" style="background: var(--warning); --height: 71%;"></div>
+                    <div class="drift-bar" style="background: var(--warning); --height: 68%;"></div>
+                    <div class="drift-bar" style="background: var(--error); --height: 65%;"></div>
+                </div>
+                <p style="font-size: 13px; color: var(--warning); font-weight: 600; margin-top: 12px;">7-run MA: SLOW_DRIFT_WARNING (trend detected)</p>
+            </div>
+        </div>
+
+        <div class="quote-block reveal">
+            <div class="quote-text">Per-run regression detection tells you if you broke something today. Drift detection tells you if you are slowly breaking something over time. You need both, because the slow slide is the one that ships to production for weeks before anyone notices.</div>
+            <div class="quote-author">From the MRDS decision log (D42)</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===========================================
+     INTEGRATIONS SECTION
+     =========================================== -->
+<section class="section" id="integrations">
+    <div class="section-tag">Integrations</div>
+    <h2 class="section-title">Slack alerts and <span class="accent">GitHub Actions.</span></h2>
+    <p class="section-body">
+        MRDS does not just detect regressions. It tells the right people through the right channels, and it gates the right workflows. Here is what a real integration looks like.
+    </p>
+
+    <div class="integration-visual">
+        <div class="integration-card reveal-left">
+            <div class="integration-card-header">
+                <div class="integration-icon" style="background: var(--primary-light); color: var(--primary);">S</div>
+                <div class="integration-card-title">Slack notification</div>
+            </div>
+            <div class="slack-message">
+                <div class="slack-message-header">
+                    <div class="slack-bot-name">MRDS Bot</div>
+                    <div class="slack-timestamp">Today at 10:42 AM</div>
+                </div>
+                <div class="slack-message-body">
+                    <strong>WARN</strong> detected for <strong>ollama:v2:0.4</strong><br>
+                    Pass rate dropped 3.2 points vs baseline.<br>
+                    <span class="highlight">3 regressions, 5 improvements</span><br>
+                    <a href="#" style="color: var(--primary);">View full report</a>
+                </div>
+            </div>
+            <div class="slack-message">
+                <div class="slack-message-header">
+                    <div class="slack-bot-name">MRDS Bot</div>
+                    <div class="slack-timestamp">Today at 11:15 AM</div>
+                </div>
+                <div class="slack-message-body">
+                    <strong>SLOW_DRIFT_WARNING</strong><br>
+                    7-run MA dropped below threshold.<br>
+                    Trend: -0.032 over 7 runs.
+                </div>
+            </div>
+        </div>
+
+        <div class="integration-card reveal-right">
+            <div class="integration-card-header">
+                <div class="integration-icon" style="background: var(--success-light); color: var(--success);">GH</div>
+                <div class="integration-card-title">GitHub Actions</div>
+            </div>
+            <div class="github-action">
+                <div class="github-action-icon success">&#10003;</div>
+                <div class="github-action-text">pip install -r requirements.txt</div>
+                <div class="github-action-time">8s</div>
+            </div>
+            <div class="github-action">
+                <div class="github-action-icon success">&#10003;</div>
+                <div class="github-action-text">python test_mrds.py (79 tests)</div>
+                <div class="github-action-time">12s</div>
+            </div>
+            <div class="github-action">
+                <div class="github-action-icon success">&#10003;</div>
+                <div class="github-action-text">python runner.py --provider mock --no-judge</div>
+                <div class="github-action-time">18s</div>
+            </div>
+            <div class="github-action">
+                <div class="github-action-icon running">&#9679;</div>
+                <div class="github-action-text">MRDS verdict: WARN (does not block)</div>
+                <div class="github-action-time">--</div>
+            </div>
+            <div class="github-action">
+                <div class="github-action-icon pending">&#9675;</div>
+                <div class="github-action-text">Merge to main (allowed)</div>
+                <div class="github-action-time">--</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="code-block reveal">
+        <div><span class="comment"># GitHub Actions workflow</span></div>
+        <div><span class="keyword">on</span>: push</div>
+        <div>&nbsp;&nbsp;<span class="keyword">paths</span>: [<span class="string">'prompts/**'</span>]</div>
+        <div>&nbsp;</div>
+        <div><span class="keyword">jobs</span>:</div>
+        <div>&nbsp;&nbsp;<span class="keyword">mrds-gate</span>:</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">runs-on</span>: ubuntu-latest</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">steps</span>:</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="keyword">run</span>: pip install -r requirements.txt</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="keyword">run</span>: python test_mrds.py</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="keyword">run</span>: python runner.py --provider mock --no-judge</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+        <div><span class="comment"># Mock eval: no live LLM, runs in &lt;30 seconds</span></div>
+        <div><span class="comment"># CRITICAL_REGRESSION blocks the merge</span></div>
+    </div>
+</section>
+
+<!-- ===========================================
+     RESULTS SECTION
+     =========================================== -->
+<section class="section" id="results" style="padding-top: 60px;">
+    <div class="section-tag">Results</div>
+    <h2 class="section-title">Validated on <span class="accent">real data.</span></h2>
+    <p class="section-body">
+        v2 vs v1 on a real Ollama run with the v0.4 golden dataset. The reduced label set in v2 was intended to be a design improvement. The data told a more complicated story.
+    </p>
+
+    <table class="data-table reveal">
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Value</th>
+                <th>Detail</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="highlight">Net score change</td>
+                <td class="highlight">+0.1317</td>
+                <td>Mixed: some categories improved, others regressed</td>
+            </tr>
+            <tr>
+                <td>Regressions</td>
+                <td class="error-text">15 cases</td>
+                <td>Cases that flipped from correct to incorrect</td>
+            </tr>
+            <tr>
+                <td>Improvements</td>
+                <td class="pass-text">37 cases</td>
+                <td>Cases that flipped from incorrect to correct</td>
+            </tr>
+            <tr>
+                <td>General category</td>
+                <td class="error-text">-0.20</td>
+                <td>Collapsed when the label set was reduced</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- ===========================================
+     QUICKSTART SECTION
+     =========================================== -->
+<section class="section" id="quickstart" style="padding-top: 60px;">
+    <div class="section-tag">Quickstart</div>
+    <h2 class="section-title">Up and running in <span class="accent">minutes.</span></h2>
+
+    <div class="code-block reveal">
+        <div><span class="comment"># Install dependencies</span></div>
+        <div><span class="prompt">$</span> pip install -r requirements.txt</div>
+        <div>&nbsp;</div>
+        <div><span class="comment"># Run the test suite (79 tests)</span></div>
+        <div><span class="prompt">$</span> python test_mrds.py</div>
+        <div>&nbsp;</div>
+        <div><span class="comment"># Run the golden set with mock provider</span></div>
+        <div><span class="prompt">$</span> python runner.py --provider mock --no-judge</div>
+        <div>&nbsp;</div>
+        <div><span class="comment"># Set a baseline for future comparisons</span></div>
+        <div><span class="prompt">$</span> python runner.py --set-baseline --force</div>
+        <div>&nbsp;</div>
+        <div><span class="comment"># Run with a live provider (e.g. Ollama)</span></div>
+        <div><span class="prompt">$</span> python runner.py --provider ollama --concurrency 8</div>
+    </div>
+</section>
+
+<!-- ===========================================
+     API DOCS SECTION
+     =========================================== -->
+<section class="section" id="api-docs" style="padding-top: 60px;">
+    <div class="section-tag">Documentation</div>
+    <h2 class="section-title">Full <span class="accent">API reference.</span></h2>
+    <p class="section-body">
+        Every public class and function in the MRDS pipeline, documented with Google-style docstrings. Covers the contract boundary, evaluation engine, async runner, drift detection, classifier, providers, storage, and reporter.
+    </p>
+    <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap;">
+        <a href="MRDS-api-docs.html" target="_blank" class="cta-btn cta-btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; border-radius: var(--radius-pill); font-weight: 600;">View API Documentation</a>
+    </div>
+</section>
+
+<!-- ===========================================
+     CTA SECTION
+     =========================================== -->
+<section class="cta-section" id="cta">
+    <h2 class="cta-title">Stop shipping prompt changes blind.</h2>
+    <p class="cta-subtitle">MRDS is open source. If you run LLM features in production, this is built for you.</p>
+    <div class="cta-buttons">
+        <a href="https://github.com/space-rock-0/llm-regression-gate" target="_blank" class="cta-btn cta-btn-primary">Star on GitHub</a>
+        <a href="MRDS-api-docs.html" target="_blank" class="cta-btn cta-btn-secondary">Read the docs</a>
+    </div>
+</section>
+
+<!-- ===========================================
+     FOOTER
+     =========================================== -->
+<footer class="footer">
+    <div class="footer-logo">MR<span>D</span>S</div>
+    <div class="footer-text">Model Regression Detection System. Open source, built with Python.</div>
+    <div class="footer-links">
+        <a href="https://github.com/space-rock-0/llm-regression-gate" target="_blank">GitHub</a>
+        <a href="MRDS-api-docs.html" target="_blank">Documentation</a>
+        <a href="MRDS-showcase.html" target="_blank">Slides</a>
+        <a href="#quickstart">Quickstart</a>
+    </div>
+</footer>
+
+<!-- ===========================================
+     SIDE VIDEO (YouTube embed)
+     =========================================== -->
+<div class="side-video" id="sideVideo">
+    <button class="side-video-close" id="videoClose" title="Minimize">--</button>
+    <div class="side-video-embed" id="sideVideoEmbed">
+        <iframe
+            id="youtubeFrame"
+            src="https://www.youtube-nocookie.com/embed/HT8WEmzrK34?autoplay=1&mute=1&controls=1&rel=0&enablejsapi=1&playsinline=1&modestbranding=1"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+        </iframe>
+        <div class="side-video-fallback" id="videoFallback">
+            <div class="side-video-fallback-play" id="fallbackPlayBtn"></div>
+            <div class="side-video-fallback-label">Click to watch on YouTube</div>
+        </div>
+    </div>
+    <div class="side-video-label">
+        <div class="dot"></div>
+        <span>MRDS Launch Video &mdash; <a href="https://youtu.be/HT8WEmzrK34" target="_blank" style="color: var(--primary); text-decoration: underline;">Watch on YouTube</a></span>
+    </div>
+</div>
+
+<script>
+/* ===========================================
+   SIDE VIDEO CONTROLS
+   =========================================== */
+(function() {
+    const sideVideo = document.getElementById('sideVideo');
+    const closeBtn = document.getElementById('videoClose');
+    const youtubeFrame = document.getElementById('youtubeFrame');
+    const fallback = document.getElementById('videoFallback');
+    const fallbackPlayBtn = document.getElementById('fallbackPlayBtn');
+
+    // Show fallback if YouTube embed fails (Error 153 = embedding disabled)
+    let embedFailed = false;
+    const failTimer = setTimeout(() => {
+        // If after 3s the frame hasn't loaded, show fallback
+        try {
+            if (!youtubeFrame.contentWindow || youtubeFrame.contentWindow.length === 0) {
+                embedFailed = true;
+                fallback.style.display = 'flex';
+            }
+        } catch (e) {
+            // Cross-origin error means the frame loaded (YouTube) — all good
+        }
+    }, 3000);
+
+    youtubeFrame.addEventListener('load', () => {
+        clearTimeout(failTimer);
+    });
+
+    // Fallback play button opens YouTube in new tab
+    fallbackPlayBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.open('https://youtu.be/HT8WEmzrK34', '_blank');
+    });
+
+    fallback.addEventListener('click', (e) => {
+        if (e.target === fallback) {
+            window.open('https://youtu.be/HT8WEmzrK34', '_blank');
+        }
+    });
+
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sideVideo.classList.add('minimized');
+        try {
+            youtubeFrame.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        } catch (err) {}
+        closeBtn.textContent = '+';
+        closeBtn.title = 'Expand';
+    });
+
+    sideVideo.addEventListener('click', () => {
+        if (sideVideo.classList.contains('minimized')) {
+            sideVideo.classList.remove('minimized');
+            try {
+                youtubeFrame.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+            } catch (err) {}
+            closeBtn.textContent = '--';
+            closeBtn.title = 'Minimize';
+        }
+    });
+})();
+
+/* ===========================================
+   SCROLL REVEAL OBSERVER
+   =========================================== */
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
+    revealObserver.observe(el);
+});
+
+/* ===========================================
+   COUNTER ANIMATION
+   =========================================== */
+function animateCounter(el, target, duration = 2000) {
+    const start = 0;
+    const startTime = performance.now();
+    const isText = isNaN(target);
+    const targetNum = isText ? 0 : parseInt(target);
+
+    if (isText) {
+        el.textContent = target;
+        return;
+    }
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(start + (targetNum - start) * eased);
+        el.textContent = current;
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    requestAnimationFrame(update);
+}
+
+const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.dataset.animated) {
+            entry.target.dataset.animated = 'true';
+            animateCounter(entry.target, entry.target.dataset.count);
+        }
+    });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('[data-count]').forEach(el => {
+    counterObserver.observe(el);
+});
+
+/* ===========================================
+   CHART BAR ANIMATION
+   =========================================== */
+const chartObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.dataset.animated) {
+            entry.target.dataset.animated = 'true';
+            const bars = entry.target.querySelectorAll('.chart-bar');
+            bars.forEach((bar, i) => {
+                setTimeout(() => {
+                    bar.style.height = bar.dataset.value || bar.style.getPropertyValue('--target');
+                    bar.classList.add('visible');
+                }, i * 150);
+            });
+        }
+    });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.chart-bars').forEach(el => {
+    chartObserver.observe(el);
+});
+
+/* ===========================================
+   DRIFT BAR ANIMATION
+   =========================================== */
+const driftObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.dataset.animated) {
+            entry.target.dataset.animated = 'true';
+            const bars = entry.target.querySelectorAll('.drift-bar');
+            bars.forEach((bar, i) => {
+                setTimeout(() => {
+                    bar.classList.add('visible');
+                }, i * 200);
+            });
+        }
+    });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.drift-visual').forEach(el => {
+    driftObserver.observe(el);
+});
+
+/* ===========================================
+   PARTICLES
+   =========================================== */
+(function createParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 8 + 's';
+        particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+        const colors = ['var(--primary)', 'var(--pink)', 'var(--cyan)'];
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        container.appendChild(particle);
+    }
+})();
+
+/* ===========================================
+   DEMO SIMULATION
+   =========================================== */
+const demoCases = [
+    { id: 'gold-001', text: 'Cannot log in since update', expected: 'account', status: 'pass' },
+    { id: 'old-002', text: 'Charged twice for same order', expected: 'billing', status: 'pass' },
+    { id: 'old-003', text: 'How do I change password', expected: 'account', status: 'pass' },
+    { id: 'old-004', text: 'App crashes on launch', expected: 'technical', status: 'pass' },
+    { id: 'old-005', text: 'Refund not received', expected: 'billing', status: 'pass' },
+    { id: 'old-006', text: 'Feature request dark mode', expected: 'general', status: 'pass' },
+    { id: 'old-007', text: 'Email not arriving', expected: 'technical', status: 'pass' },
+    { id: 'old-008', text: 'Cancel subscription', expected: 'account', status: 'pass' },
+    { id: 'old-009', text: 'Wrong item delivered', expected: 'billing', status: 'warn' },
+    { id: 'old-010', text: 'How to export data', expected: 'general', status: 'warn' },
+    { id: 'old-011', text: 'Payment failed', expected: 'billing', status: 'pass' },
+    { id: 'old-012', text: 'Account locked', expected: 'account', status: 'pass' },
+    { id: 'old-013', text: 'Bug in dashboard', expected: 'technical', status: 'pass' },
+    { id: 'old-014', text: 'Question about invoice', expected: 'billing', status: 'warn' },
+    { id: 'old-015', text: 'Update broke search', expected: 'technical', status: 'pass' },
+    { id: 'old-016', text: 'How to delete account', expected: 'account', status: 'pass' },
+    { id: 'old-017', text: 'Pricing question', expected: 'general', status: 'pass' },
+];
+
+let demoRunning = false;
+
+async function runDemo() {
+    if (demoRunning) return;
+    demoRunning = true;
+
+    const btn = document.getElementById('runDemoBtn');
+    const progress = document.getElementById('demoProgress');
+    const grid = document.getElementById('demoGrid');
+    const verdict = document.getElementById('demoVerdict');
+    const notifications = document.getElementById('demoNotifications');
+
+    // Reset
+    btn.disabled = true;
+    btn.textContent = 'Running...';
+    progress.style.width = '0%';
+    grid.innerHTML = '';
+    verdict.className = '';
+    verdict.innerHTML = '';
+    notifications.innerHTML = '';
+
+    // Phase 1: Progress + cases appearing
+    for (let i = 0; i < demoCases.length; i++) {
+        const pct = Math.round(((i + 1) / demoCases.length) * 100);
+        progress.style.width = pct + '%';
+
+        const c = demoCases[i];
+        const div = document.createElement('div');
+        div.className = 'demo-case ' + c.status;
+        div.innerHTML = '<strong>' + c.id + '</strong><br>' + c.text + '<br>Expected: ' + c.expected;
+        grid.appendChild(div);
+
+        // Trigger reflow then add visible class
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                div.classList.add('visible');
+            });
+        });
+
+        await sleep(80);
+    }
+
+    await sleep(500);
+
+    // Phase 2: Verdict
+    progress.style.width = '100%';
+    verdict.className = 'demo-verdict warn visible';
+    verdict.innerHTML = '<span style="font-size:32px;">!</span> WARN &mdash; Pass rate dropped 3.2 points vs baseline (ollama:v1:0.4 = 0.4910)';
+    await sleep(800);
+
+    // Phase 3: Notifications
+    const notif1 = document.createElement('div');
+    notif1.className = 'demo-notification slack';
+    notif1.innerHTML = '<span style="font-size:20px;">S</span> Slack alert sent to <strong>#mrds-alerts</strong> &mdash; 3 regressions, 5 improvements';
+    notifications.appendChild(notif1);
+    requestAnimationFrame(() => { notif1.classList.add('visible'); });
+
+    await sleep(600);
+
+    const notif2 = document.createElement('div');
+    notif2.className = 'demo-notification ci';
+    notif2.innerHTML = '<span style="font-size:20px;">CI</span> GitHub Actions check: <strong>WARN</strong> (does not block merge)';
+    notifications.appendChild(notif2);
+    requestAnimationFrame(() => { notif2.classList.add('visible'); });
+
+    await sleep(600);
+
+    const notif3 = document.createElement('div');
+    notif3.className = 'demo-notification github';
+    notif3.innerHTML = '<span style="font-size:20px;">GH</span> Pull request updated with MRDS verdict and named flips';
+    notifications.appendChild(notif3);
+    requestAnimationFrame(() => { notif3.classList.add('visible'); });
+
+    // Done
+    btn.disabled = false;
+    btn.textContent = 'Run Again';
+    demoRunning = false;
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/* ===========================================
+   SMOOTH SCROLL FOR NAV
+   =========================================== */
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
+/* ===========================================
+   NAV BACKGROUND ON SCROLL
+   =========================================== */
+window.addEventListener('scroll', () => {
+    const nav = document.getElementById('mainNav');
+    if (window.scrollY > 50) {
+        nav.style.boxShadow = 'var(--shadow-md)';
+    } else {
+        nav.style.boxShadow = 'none';
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+data/
+*.log
+__pycache__/
+*.pyc
+archive/
+golden_dataset/*.json.bak
+.DS_Store
+Thumbs.db

@@ -1,0 +1,53 @@
+{
+  "_comment": "Ground-truth labelled emails. 'expected' is the human label we compare the classifier against when computing accuracy. Later phases will add more rows here; a regression means accuracy on THESE rows dropped.",
+  "emails": [
+    {
+      "id": "s1",
+      "expected": "billing",
+      "subject": "Charged twice this month",
+      "body": "Hi, I was charged twice for my subscription this month and I would like a refund for the duplicate invoice. My card ending 4412 shows two identical charges."
+    },
+    {
+      "id": "s2",
+      "expected": "technical",
+      "subject": "API returns 500",
+      "body": "Your API started returning error 500 on every request since yesterday morning. The server is either down or the endpoint is broken. Requests time out after 30 seconds."
+    },
+    {
+      "id": "s3",
+      "expected": "account",
+      "subject": "Locked out after 2FA reset",
+      "body": "I am locked out of my account after trying to reset my password and set up 2FA. I cannot sign in and the password reset email never arrives."
+    },
+    {
+      "id": "s4",
+      "expected": "general",
+      "subject": "Feedback on new docs",
+      "body": "Just wanted to say the new documentation site is clear and easy to navigate. No problem to report, this is general feedback and a small feature request."
+    },
+    {
+      "id": "s5",
+      "expected": "billing",
+      "subject": "Update payment method",
+      "body": "Can you tell me where to update my payment method? My receipt shows the old card and I want to change it before the next invoice."
+    },
+    {
+      "id": "s6",
+      "expected": "technical",
+      "subject": "Dashboard very slow",
+      "body": "The analytics dashboard is extremely slow since the last release and sometimes fails to load entirely. Is this a known bug?"
+    },
+    {
+      "id": "s7",
+      "expected": "account",
+      "subject": "Suspended account appeal",
+      "body": "My account was suspended for no clear reason. Please review and restore it, I need permission to my workspace files."
+    },
+    {
+      "id": "s8",
+      "expected": "general",
+      "subject": "Opening hours",
+      "body": "Do you have an office I can visit? Sharing a bit of context about our team and what we are hoping to build next."
+    }
+  ]
+}
